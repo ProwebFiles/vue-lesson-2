@@ -1,0 +1,95 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Циклы</title>
+        <script src="https://unpkg.com/vue"></script>
+    </head>
+
+    <body>
+
+        <div id="app">
+            <h1>{{ title }}</h1>
+            <form action="" @submit.prevent="addNewText">
+                <input type="text" placeholder="текс" v-model="newText">
+                <button>Добавить</button>
+                <p>new text: {{ newText }}</p>
+                <h2>Колличество элементов в списке: {{ listLength }}</h2>
+            </form>
+            <ul>
+                <li v-for="(item, index) in list" :key="index">
+                    <div>{{ item.name }}</div>
+                    <div>ID: {{ item.id }}</div>
+                    <div>ARRAY ID: {{ index }}</div>
+                    <button @click="delText(item)">X</button>
+                </li>
+            </ul>
+        </div>
+        <script>
+            let id = 0;
+        const app = {
+            data() {
+                return {
+                    title: 'Циклы',
+                    list: [
+                        { id: id++, name: 'Zafar' },
+                        { id: id++, name: 'Alex' },
+                        { id: id++, name: 'Sardor' },
+                    ],
+                    newText: '',
+                }
+            },
+            // Хуки computed и watch показать в конце приложения
+            mounted() {
+                this.getList()
+            },
+            methods: {
+                addNewText() {
+                    this.list.push({ 
+                        id: id++, 
+                        name: this.newText 
+                    })
+                    this.newText = ''
+                },
+                delText(obj) {  
+                    this.list = this.list.filter((item) => item !== obj)
+                },
+                getList() {
+                    const localNotes = localStorage.getItem('list')
+                    if (localNotes) {
+                        this.list = JSON.parse(localNotes)
+                    }
+                }
+            },
+            // computed свойства внутри себя создают методы и всегда должны что то возвращать, они используются для вычисления или какой либо фильтрации
+            computed: {
+                listLength() {
+                    return this.list.length
+                }
+            },
+            // watch cвойства - следят за нашими состояниями и отрабатывают тогда когда происходит изменение. 
+            watch: {
+                // Если вам нужно  следить только за значением  состояния то внутри свойства watch вы создаете метод с таким же названием как название вашего состояниия (nexText) и внутри метода получаете аргумент с измененым значением
+                newText(newValue) {
+                    console.log(newValue);
+                },
+                // если вам нужно следить за внутренними значениями состояния то вам нужно создать функцию handler(){} - которая аргументом будет принимать измененое состояние и после метода указать ключ со значением deep: true
+                // тут используеться для глубоко просматривания
+                list: {
+                    handler(updatedList) {
+                        console.log(updatedList);
+                        localStorage.setItem('list', JSON.stringify(this.list   ))
+                    },
+                    deep: true
+                }
+            }
+        }
+        Vue.createApp(app).mount('#app')
+        </script>
+    </body>
+
+    </html>
